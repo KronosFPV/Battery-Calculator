@@ -69,7 +69,7 @@ const BatteryCalculator = () => {
     setOrders(orders.filter(order => order.id !== id));
   };
 
-  const updateOrder = (id, field, value) => {
+  const updateOrder = (id: number, field: string, value: any) => {
     setOrders(orders.map(order => 
       order.id === id ? { ...order, [field]: value } : order
     ));
