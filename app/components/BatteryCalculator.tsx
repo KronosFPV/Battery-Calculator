@@ -14,7 +14,7 @@ const BatteryCalculator = () => {
     { id: 1, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }
   ]);
 
-  const cellTypes: Record<string, string[]> = {
+  const cellTypes = {
     lipo: ['P45B', 'P50B'],
     'li-ion-6s': ['P45B', 'P50B'],
     'li-ion-6s2p': ['P45B', 'P50B'],
@@ -60,13 +60,13 @@ const BatteryCalculator = () => {
     setOrders([...orders, { id: newId, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }]);
   };
 
-  const removeOrder = (id: number) => setOrders(orders.filter(order => order.id !== id));
+  const removeOrder = (id) => setOrders(orders.filter(order => order.id !== id));
 
-  const updateOrder = (id: number, field: string, value: any) => {
+  const updateOrder = (id, field, value) => {
     setOrders(orders.map(order => (order.id === id ? { ...order, [field]: value } : order)));
   };
 
-  const convertToChf = (amount: number) => {
+  const convertToChf = (amount) => {
     return currency === 'EUR' ? amount * exchangeRates.EUR
          : currency === 'USD' ? amount * exchangeRates.USD
          : amount;
@@ -94,70 +94,30 @@ const BatteryCalculator = () => {
         </Alert>
       )}
 
-      {/* Währungsauswahl */}
-      <div className="mb-6 p-4 bg-gray-50 rounded">
-        <div className="flex items-center gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-2">Währung</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full p-2 border rounded"
-            >
-              <option value="CHF">CHF</option>
-              <option value="EUR">EUR (Kurs: {exchangeRates.EUR.toFixed(4)})</option>
-              <option value="USD">USD (Kurs: {exchangeRates.USD.toFixed(4)})</option>
-            </select>
-          </div>
-          <button
-            onClick={fetchExchangeRates}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 mt-6"
-          >
-            Kurse aktualisieren
-          </button>
-        </div>
-      </div>
-
-      {/* Transportkosten */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">Transportkosten ({currency})</label>
-        <input
-          type="number"
-          min="0"
-          step="0.01"
-          value={shippingCost}
-          onChange={(e) => setShippingCost(Number(e.target.value))}
-          className="w-full p-2 border rounded"
-        />
-      </div>
-
       {/* Bestellpositionen */}
       <div className="space-y-4 mb-6">
         <h2 className="text-xl font-semibold">Bestellpositionen</h2>
-        
         {orders.map((order) => (
           <div key={order.id} className="flex gap-4 items-start p-4 border rounded">
-            <div className="flex-1 space-y-2">
-              <select
-                value={order.type}
-                onChange={(e) => updateOrder(order.id, 'type', e.target.value)}
-                className="w-full p-2 border rounded"
-              >
-                {batteryTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
+            <select
+              value={order.type}
+              onChange={(e) => updateOrder(order.id, 'type', e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              {batteryTypes.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
+            </select>
 
-              <select
-                value={order.cellType}
-                onChange={(e) => updateOrder(order.id, 'cellType', e.target.value)}
-                className="w-full p-2 border rounded"
-              >
-                {cellTypes[order.type]?.map(cellType => (
-                  <option key={cellType} value={cellType}>{cellType}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={order.cellType}
+              onChange={(e) => updateOrder(order.id, 'cellType', e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              {cellTypes[order.type]?.map(cellType => (
+                <option key={cellType} value={cellType}>{cellType}</option>
+              ))}
+            </select>
 
             <input
               type="number"
@@ -192,14 +152,6 @@ const BatteryCalculator = () => {
           <Plus size={20} />
           Position hinzufügen
         </button>
-      </div>
-
-      {/* Zusammenfassung */}
-      <div className="bg-gray-50 p-4 rounded">
-        <h2 className="text-xl font-semibold mb-4">Zusammenfassung</h2>
-        <div className="space-y-2">
-          <div className="flex justify-between"><span>Gesamtbetrag:</span><span>{calculateTotal().toFixed(2)} CHF</span></div>
-        </div>
       </div>
     </div>
   );
