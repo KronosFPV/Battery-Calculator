@@ -1,14 +1,8 @@
 import * as React from "react"
 
-export function Alert({ children, variant = "default", className = "" }) {
-  const baseStyles = "rounded-lg border p-4"
-  const variantStyles = {
-    default: "bg-white text-gray-900 border-gray-200",
-    destructive: "border-red-500/50 text-red-500 dark:border-red-500 bg-red-50"
-  }
-
+export function Alert({ children, className = "" }) {
   return (
-    <div className={`${baseStyles} ${variantStyles[variant]} ${className}`}>
+    <div className={`rounded-lg border p-4 bg-red-50 border-red-500 text-red-700 ${className}`}>
       {children}
     </div>
   )
@@ -16,7 +10,7 @@ export function Alert({ children, variant = "default", className = "" }) {
 
 export function AlertDescription({ children, className = "" }) {
   return (
-    <div className={`text-sm [&_p]:leading-relaxed ${className}`}>
+    <div className={`text-sm ${className}`}>
       {children}
     </div>
   )
