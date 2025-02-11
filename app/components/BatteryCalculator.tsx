@@ -75,7 +75,7 @@ const BatteryCalculator = () => {
     ));
   };
 
-  const convertToChf = (amount) => {
+  const convertToChf = (amount: number) => {
     switch(currency) {
       case 'EUR':
         return amount * exchangeRates.EUR;
