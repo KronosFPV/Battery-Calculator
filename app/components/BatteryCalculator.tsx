@@ -65,7 +65,7 @@ const BatteryCalculator = () => {
     setOrders([...orders, { id: newId, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }]);
   };
 
-  const removeOrder = (id) => {
+  const removeOrder = (id: number) => {
     setOrders(orders.filter(order => order.id !== id));
   };
 
