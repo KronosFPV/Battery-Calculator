@@ -180,7 +180,7 @@ const BatteryCalculator = () => {
                 onChange={(e) => updateOrder(order.id, 'cellType', e.target.value)}
                 className="w-full p-2 border rounded"
               >
-                {cellTypes[order.type]?.map(cellType => (
+              {cellTypes[order.type as keyof typeof cellTypes]?.map(cellType => (
                   <option key={cellType} value={cellType}>
                     {cellType}
                   </option>
