@@ -5,10 +5,11 @@ interface AlertProps {
   className?: string;
 }
 
-export function Alert({ children, className = "" }: AlertProps) {
+export function AlertDescription({ children, className = "" }: AlertProps) {
   return (
-    <div className={`rounded-lg border p-4 bg-red-50 border-red-500 text-red-700 ${className}`}>
+    <p className={`text-sm text-red-600 ${className}`}>
       {children}
-    </div>
+    </p>
   );
 }
+
