@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Alert } from './ui/alert';
+import { Alert, AlertDescription } from "./ui/alert";
 
 const BatteryCalculator = () => {
   const [shippingCost, setShippingCost] = useState(0);
