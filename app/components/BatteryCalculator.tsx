@@ -7,18 +7,15 @@ import { Alert, AlertDescription } from './ui/alert';
 const BatteryCalculator = () => {
   const [shippingCost, setShippingCost] = useState(0);
   const [currency, setCurrency] = useState('CHF');
-  const [exchangeRates, setExchangeRates] = useState({
-    EUR: 1,
-    USD: 1
-  });
+  const [exchangeRates, setExchangeRates] = useState({ EUR: 1, USD: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [orders, setOrders] = useState([
     { id: 1, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }
   ]);
 
-  const cellTypes = {
-    'lipo': ['P45B', 'P50B'],
+  const cellTypes: Record<string, string[]> = {
+    lipo: ['P45B', 'P50B'],
     'li-ion-6s': ['P45B', 'P50B'],
     'li-ion-6s2p': ['P45B', 'P50B'],
     'li-ion-6s3p': ['P45B', 'P50B']
@@ -39,74 +36,53 @@ const BatteryCalculator = () => {
     try {
       setLoading(true);
       setError('');
-      
-      const eurResponse = await fetch('https://api.frankfurter.app/latest?from=EUR&to=CHF');
-      if (!eurResponse.ok) throw new Error('EUR Kurs konnte nicht abgerufen werden');
-      const eurData = await eurResponse.json();
-      
-      const usdResponse = await fetch('https://api.frankfurter.app/latest?from=USD&to=CHF');
-      if (!usdResponse.ok) throw new Error('USD Kurs konnte nicht abgerufen werden');
-      const usdData = await usdResponse.json();
-      
+      const eurRes = await fetch('https://api.frankfurter.app/latest?from=EUR&to=CHF');
+      const usdRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=CHF');
+
+      if (!eurRes.ok || !usdRes.ok) throw new Error('Fehler beim Abrufen der Wechselkurse');
+
+      const eurData = await eurRes.json();
+      const usdData = await usdRes.json();
+
       setExchangeRates({
         EUR: eurData.rates.CHF,
         USD: usdData.rates.CHF
       });
-      
       setLoading(false);
-    } catch (err) {
-      setError('Wechselkurse konnten nicht geladen werden. Bitte versuchen Sie es später erneut.');
+    } catch {
+      setError('Wechselkurse konnten nicht geladen werden.');
       setLoading(false);
     }
   };
 
   const addOrder = () => {
-    const newId = Math.max(...orders.map(o => o.id)) + 1;
+    const newId = orders.length ? Math.max(...orders.map(o => o.id)) + 1 : 1;
     setOrders([...orders, { id: newId, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }]);
   };
 
-  const removeOrder = (id: number) => {
-    setOrders(orders.filter(order => order.id !== id));
-  };
+  const removeOrder = (id: number) => setOrders(orders.filter(order => order.id !== id));
 
   const updateOrder = (id: number, field: string, value: any) => {
-    setOrders(orders.map(order => 
-      order.id === id ? { ...order, [field]: value } : order
-    ));
+    setOrders(orders.map(order => (order.id === id ? { ...order, [field]: value } : order)));
   };
 
   const convertToChf = (amount: number) => {
-    switch(currency) {
-      case 'EUR':
-        return amount * exchangeRates.EUR;
-      case 'USD':
-        return amount * exchangeRates.USD;
-      default:
-        return amount;
-    }
+    return currency === 'EUR' ? amount * exchangeRates.EUR
+         : currency === 'USD' ? amount * exchangeRates.USD
+         : amount;
   };
 
   const calculateSubtotal = () => {
-    return orders.reduce((sum, order) => 
-      sum + (order.quantity * convertToChf(order.pricePerUnit)), 0
-    );
+    return orders.reduce((sum, order) => sum + order.quantity * convertToChf(order.pricePerUnit), 0);
   };
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     const shippingInChf = convertToChf(shippingCost);
-    const baseTotal = subtotal + shippingInChf;
-    const customsDuty = baseTotal * 0.081;
-    return baseTotal + customsDuty;
+    return subtotal + shippingInChf + (subtotal + shippingInChf) * 0.081;
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center">Lade Wechselkurse...</div>
-      </div>
-    );
-  }
+  if (loading) return <div className="max-w-4xl mx-auto p-6 text-center">Lade Wechselkurse...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -144,9 +120,7 @@ const BatteryCalculator = () => {
 
       {/* Transportkosten */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">
-          Transportkosten ({currency})
-        </label>
+        <label className="block text-sm font-medium mb-2">Transportkosten ({currency})</label>
         <input
           type="number"
           min="0"
@@ -170,44 +144,37 @@ const BatteryCalculator = () => {
                 className="w-full p-2 border rounded"
               >
                 {batteryTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
+                  <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
-             <select
-  value={order.cellType}
-  onChange={(e) => updateOrder(order.id, 'cellType', e.target.value)}
-  className="w-full p-2 border rounded"
->
-  {cellTypes[order.type as keyof typeof cellTypes]?.map((cellType) => (
-    <option key={cellType} value={cellType}>
-      {cellType}
-    </option>
-  ))}
-</select>
-            <div className="flex-1">
-              <input
-                type="number"
-                min="1"
-                value={order.quantity}
-                onChange={(e) => updateOrder(order.id, 'quantity', Number(e.target.value))}
-                placeholder="Stückzahl"
+
+              <select
+                value={order.cellType}
+                onChange={(e) => updateOrder(order.id, 'cellType', e.target.value)}
                 className="w-full p-2 border rounded"
-              />
+              >
+                {cellTypes[order.type]?.map(cellType => (
+                  <option key={cellType} value={cellType}>{cellType}</option>
+                ))}
+              </select>
             </div>
-            
-            <div className="flex-1">
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={order.pricePerUnit}
-                onChange={(e) => updateOrder(order.id, 'pricePerUnit', Number(e.target.value))}
-                placeholder={`Preis pro Stück (${currency})`}
-                className="w-full p-2 border rounded"
-              />
-            </div>
+
+            <input
+              type="number"
+              min="1"
+              value={order.quantity}
+              onChange={(e) => updateOrder(order.id, 'quantity', Number(e.target.value))}
+              className="w-full p-2 border rounded"
+            />
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={order.pricePerUnit}
+              onChange={(e) => updateOrder(order.id, 'pricePerUnit', Number(e.target.value))}
+              className="w-full p-2 border rounded"
+            />
 
             <button
               onClick={() => removeOrder(order.id)}
@@ -231,22 +198,7 @@ const BatteryCalculator = () => {
       <div className="bg-gray-50 p-4 rounded">
         <h2 className="text-xl font-semibold mb-4">Zusammenfassung</h2>
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <span>Zwischensumme:</span>
-            <span>{calculateSubtotal().toFixed(2)} CHF</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Transportkosten:</span>
-            <span>{convertToChf(shippingCost).toFixed(2)} CHF</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Zoll (8.1%):</span>
-            <span>{(calculateTotal() - calculateSubtotal() - convertToChf(shippingCost)).toFixed(2)} CHF</span>
-          </div>
-          <div className="flex justify-between font-bold text-lg pt-2 border-t">
-            <span>Gesamtbetrag:</span>
-            <span>{calculateTotal().toFixed(2)} CHF</span>
-          </div>
+          <div className="flex justify-between"><span>Gesamtbetrag:</span><span>{calculateTotal().toFixed(2)} CHF</span></div>
         </div>
       </div>
     </div>
