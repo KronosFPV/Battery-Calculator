@@ -16,7 +16,8 @@ const BatteryCalculator = () => {
   const [orders, setOrders] = useState([
     { id: 1, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }
   ]);
-const cellTypes = {
+
+  const cellTypes = {
     'lipo': ['P45B', 'P50B'],
     'li-ion-6s': ['P45B', 'P50B'],
     'li-ion-6s2p': ['P45B', 'P50B'],
@@ -58,6 +59,7 @@ const cellTypes = {
       setLoading(false);
     }
   };
+
   const addOrder = () => {
     const newId = Math.max(...orders.map(o => o.id)) + 1;
     setOrders([...orders, { id: newId, type: 'lipo', cellType: 'P45B', quantity: 1, pricePerUnit: 0 }]);
@@ -105,12 +107,13 @@ const cellTypes = {
       </div>
     );
   }
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Akku Bestellkalkulator</h1>
       
       {error && (
-        <Alert variant="destructive" className="mb-6">
+        <Alert className="mb-6">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -138,6 +141,7 @@ const cellTypes = {
           </button>
         </div>
       </div>
+
       {/* Transportkosten */}
       <div className="mb-6">
         <label className="block text-sm font-medium mb-2">
@@ -183,6 +187,7 @@ const cellTypes = {
                 ))}
               </select>
             </div>
+            
             <div className="flex-1">
               <input
                 type="number"
@@ -223,6 +228,7 @@ const cellTypes = {
           Position hinzufügen
         </button>
       </div>
+
       {/* Zusammenfassung */}
       <div className="bg-gray-50 p-4 rounded">
         <h2 className="text-xl font-semibold mb-4">Zusammenfassung</h2>
