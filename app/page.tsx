@@ -1,3 +1,5 @@
+import BatteryCalculator from "./components/BatteryCalculator";
+
 export default function Home() {
   return (
     <main className="container mx-auto py-10">
