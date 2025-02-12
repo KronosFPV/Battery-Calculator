@@ -66,7 +66,7 @@ const updateOrder = (id: number, field: string, value: any) => {
     setOrders(orders.map(order => (order.id === id ? { ...order, [field]: value } : order)));
   };
 
-  const convertToChf = (amount) => {
+  const convertToChf = (amount: number) => { 
     return currency === 'EUR' ? amount * exchangeRates.EUR
          : currency === 'USD' ? amount * exchangeRates.USD
          : amount;
